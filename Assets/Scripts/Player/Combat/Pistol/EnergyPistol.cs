@@ -21,10 +21,26 @@ public class EnergyPistol : MonoBehaviour
     public float Charge = 0f;
     public float MaxCharge = 100f;
     public float ChargeSpeed = 10f;
+    public Vector2 ChargeDrumSpin;
 
     [Header("Damage Settings")]
     public float DefaultDamage = 5f;
     private float DamageToDeal = 5f;
+
+    [Header("Raycast & Visual Settings")]
+    public LineRenderer BeamLine;                    // persistent LineRenderer assigned in inspector
+    public float SingleShotLineWidth = 0.02f;        // width for single shot beam
+    public float ChargeShotLineWidth = 0.06f;        // width for charge shot beam
+    public float SingleShotLineDuration = 0.05f;    // visible time for single shot beam
+    public float ChargeShotLineDuration = 0.1f;     // visible time for charge shot beam
+
+    [Header("Explosion Settings")]
+    public GameObject ExplosionPrefab;               // prefab to spawn at hit point for charged shots
+    public float ExplosionExpandSpeed = 5f;          // speed used when expanding the explosion
+    public AnimationCurve ExplosionFadeCurve = AnimationCurve.Linear(0f, 1f, 1f, 0f);
+
+    [Header("Fire Timing")]
+    public float HoldThreshold = 0.2f;               // how long until we consider the hold a charge
 
     // Internal state tracking
     private float lastFiredTime = 0f;
@@ -35,6 +51,10 @@ public class EnergyPistol : MonoBehaviour
     private Coroutine drumRoutine;
     private Coroutine overheatReturnRoutine;
 
+    // Internal for timing holds and beam/explosion coroutines
+    private float mouseDownTime = 0f;
+    private Coroutine beamRoutine;
+
     void Update()
     {
         HeatSlider.value = Heat / 100;
@@ -43,14 +63,17 @@ public class EnergyPistol : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             if (!isOverheated)
+            {
                 isCharging = true;
+                mouseDownTime = Time.time; // start timing for hold threshold
+            }
         }
 
         // While charging, accumulate charge and heat
         if (Input.GetMouseButton(0) && isCharging)
         {
             Charge = Mathf.Min(Charge + ChargeSpeed * Time.deltaTime, MaxCharge);
-            Heat = Mathf.Min(Heat + OverheatSpeed * Time.deltaTime, MaxHeat);
+            Heat = Mathf.Min(Heat + ChargeSpeed * Time.deltaTime, MaxHeat);
             SpinDrum();
 
             // If overheated while charging, note it but allow shot to finish
@@ -61,11 +84,26 @@ public class EnergyPistol : MonoBehaviour
             }
         }
 
-        // On release, fire shot (even if overheated mid-charge)
+        // On release, decide between primary or charge based on hold time, then fire
         if (Input.GetMouseButtonUp(0) && isCharging)
         {
-            isCharging = false;
-            ChargeFire();
+            float heldFor = Time.time - mouseDownTime;
+
+            // If held less than threshold -> single shot
+            if (heldFor < HoldThreshold)
+            {
+                isCharging = false;
+                StandardFire();
+                PrimaryFireLogic(); // visual + raycast for primary
+            }
+            else // held long enough -> charged shot
+            {
+                // capture charge before ChargeFire resets it
+                float capturedCharge = Charge;
+                isCharging = false;
+                ChargeFire();
+                ChargeShotLogic(capturedCharge); // visual + raycast + explosion using captured charge
+            }
         }
 
         // Passive cooldown when idle
@@ -88,22 +126,8 @@ public class EnergyPistol : MonoBehaviour
         }
     }
 
-    // Handles full overheat recovery and resets pistol rotation
-    private void CooldownOverheat()
-    {
-        Heat = Mathf.Max(Heat - CooldownRate * Time.deltaTime, 0f);
-        if (Pistol.transform.localRotation != Quaternion.identity)
-        {
-            if (overheatReturnRoutine != null) StopCoroutine(overheatReturnRoutine);
-            overheatReturnRoutine = StartCoroutine(ReturnPistolToNeutral());
-        }
 
-        if (Heat <= 0f)
-        {
-            Heat = 0f;
-            isOverheated = false;
-        }
-    }
+    #region Firing Logic
 
     // Fires a single non-charged shot
     public void StandardFire()
@@ -121,12 +145,12 @@ public class EnergyPistol : MonoBehaviour
         recoilRoutine = StartCoroutine(Recoil());
     }
 
-    // Handles charge fire logic (executed on release)
+    // Handles charge fire logic (run on mouse up)
     public void ChargeFire()
     {
         // Always allow shot if charge started, even if overheated during it
         DamageToDeal = DefaultDamage + (Charge / 2f);
-        Heat = Mathf.Min(Heat + OverheatSpeed, MaxHeat);
+        Heat = Mathf.Min(Heat + OverheatSpeed, MaxHeat);// Applies heat after charge fire released
         lastFiredTime = Time.time;
 
         if (drumRoutine != null) StopCoroutine(drumRoutine);
@@ -145,6 +169,28 @@ public class EnergyPistol : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Overheat logic
+    // Handles full overheat recovery and resets pistol rotation
+    private void CooldownOverheat()
+    {
+        Heat = Mathf.Max(Heat - CooldownRate * Time.deltaTime, 0f);
+        if (Pistol.transform.localRotation != Quaternion.identity)
+        {
+            if (overheatReturnRoutine != null) StopCoroutine(overheatReturnRoutine);
+            overheatReturnRoutine = StartCoroutine(ReturnPistolToNeutral());
+        }
+
+        if (Heat <= 0f)
+        {
+            Heat = 0f;
+            isOverheated = false;
+        }
+    }
+    #endregion
+
+    #region Animations
     // Lerps drum +60 degrees around Z axis quickly
     private IEnumerator RevolveDrumOnce()
     {
@@ -171,7 +217,7 @@ public class EnergyPistol : MonoBehaviour
     // Spins the drum while charging, speed scales with charge amount
     public void SpinDrum()
     {
-        float spinSpeed = Mathf.Lerp(100f, 600f, Charge / MaxCharge);
+        float spinSpeed = Mathf.Lerp(ChargeDrumSpin.x, ChargeDrumSpin.y, Charge / MaxCharge);
         Drum.transform.Rotate(Vector3.forward, spinSpeed * Time.deltaTime, Space.Self);
     }
 
@@ -243,4 +289,139 @@ public class EnergyPistol : MonoBehaviour
 
         Pistol.transform.localRotation = targetRot;
     }
+    #endregion
+
+
+    #region New: Raycast, Beam & Explosion Logic
+
+    // Performs a raycast from Camera.main and draws a short-lived beam for a regular (primary) shot.
+    // Also logs the hit GameObject (if any).
+    public void PrimaryFireLogic()
+    {
+        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+        RaycastHit hit;
+        Vector3 hitPoint;
+
+        if (Physics.Raycast(ray, out hit, 1000f))
+        {
+            hitPoint = hit.point;
+            Debug.Log("[PrimaryFire] Hit: " + hit.collider.gameObject.name);
+        }
+        else
+        {
+            hitPoint = ray.origin + ray.direction * 1000f;
+            Debug.Log("[PrimaryFire] Hit: None");
+        }
+
+        // Show beam
+        if (beamRoutine != null) StopCoroutine(beamRoutine);
+        beamRoutine = StartCoroutine(ShowBeam(FirePoint.position, hitPoint, SingleShotLineWidth, SingleShotLineDuration));
+    }
+
+    // Performs a raycast from Camera.main for a charged shot, spawns an expanding explosion at the hit point,
+    // logs the hit object, and draws a beam with charge-specific width/duration.
+    // 'capturedCharge' is the charge amount at release (passed in because Charge is reset by ChargeFire()).
+    public void ChargeShotLogic(float capturedCharge)
+    {
+        Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+        RaycastHit hit;
+        Vector3 hitPoint;
+
+        if (Physics.Raycast(ray, out hit, 1000f))
+        {
+            hitPoint = hit.point;
+            Debug.Log("[ChargeShot] Hit: " + hit.collider.gameObject.name);
+        }
+        else
+        {
+            hitPoint = ray.origin + ray.direction * 1000f;
+            Debug.Log("[ChargeShot] Hit: None");
+        }
+
+        // Show beam
+        if (beamRoutine != null) StopCoroutine(beamRoutine);
+        beamRoutine = StartCoroutine(ShowBeam(FirePoint.position, hitPoint, ChargeShotLineWidth, ChargeShotLineDuration));
+
+        // Spawn explosion at hit point if prefab assigned
+        if (ExplosionPrefab != null)
+        {
+            GameObject e = Instantiate(ExplosionPrefab, hitPoint, Quaternion.identity);
+            StartCoroutine(ExpandExplosion(e.transform, capturedCharge));
+        }
+        else
+        {
+            Debug.LogWarning("[ChargeShotLogic] ExplosionPrefab not assigned.");
+        }
+    }
+
+    // Shows the persistent LineRenderer between start and end for 'duration' seconds then disables it.
+    private IEnumerator ShowBeam(Vector3 start, Vector3 end, float width, float duration)
+    {
+        if (BeamLine == null)
+            yield break;
+
+        BeamLine.enabled = true;
+        BeamLine.positionCount = 2;
+        BeamLine.SetPosition(0, start);
+        BeamLine.SetPosition(1, end);
+        BeamLine.startWidth = width;
+        BeamLine.endWidth = width;
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            // keep the start tied to FirePoint in case gun moves while beam exists
+            BeamLine.SetPosition(0, FirePoint.position);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        BeamLine.enabled = false;
+    }
+
+    // Expands and fades explosion using an AnimationCurve for alpha
+    private IEnumerator ExpandExplosion(Transform explTransform, float capturedCharge)
+    {
+        Renderer rend = explTransform.GetComponent<Renderer>();
+        if (rend == null)
+        {
+            Debug.LogWarning("[ExpandExplosion] Explosion prefab has no Renderer.");
+            yield break;
+        }
+
+        Material mat = rend.material;
+        Color startColor = mat.color;
+
+        Vector3 startScale = explTransform.localScale;
+        Vector3 targetScale = Vector3.one * (1 + (capturedCharge / Mathf.Max(1f, MaxCharge)) * 15f);
+
+        float t = 0f;
+
+        while (t < 1f)
+        {
+            t += ExplosionExpandSpeed * Time.deltaTime;
+            float lerpT = Mathf.Clamp01(t);
+
+            // Scale growth
+            explTransform.localScale = Vector3.Lerp(startScale, targetScale, lerpT);
+
+            // Alpha from animation curve (curve defines the alpha over time)
+            float curveValue = ExplosionFadeCurve.Evaluate(lerpT);
+            Color c = startColor;
+            c.a = curveValue;
+            mat.color = c;
+
+            yield return null;
+        }
+
+        // Ensure fully faded
+        Color final = mat.color;
+        final.a = 0f;
+        mat.color = final;
+
+        Destroy(explTransform.gameObject);
+    }
+
+
+    #endregion
 }
