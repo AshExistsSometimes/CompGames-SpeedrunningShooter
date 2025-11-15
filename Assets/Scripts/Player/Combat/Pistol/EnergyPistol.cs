@@ -22,6 +22,7 @@ public class EnergyPistol : MonoBehaviour
     public float MaxCharge = 100f;
     public float ChargeSpeed = 10f;
     public Vector2 ChargeDrumSpin;
+    public Slider ChargeSlider;
 
     [Header("Damage Settings")]
     public float DefaultDamage = 5f;
@@ -33,11 +34,13 @@ public class EnergyPistol : MonoBehaviour
     public float ChargeShotLineWidth = 0.06f;        // width for charge shot beam
     public float SingleShotLineDuration = 0.05f;    // visible time for single shot beam
     public float ChargeShotLineDuration = 0.1f;     // visible time for charge shot beam
+    public LayerMask ShootableLayers;
 
     [Header("Explosion Settings")]
     public GameObject ExplosionPrefab;               // prefab to spawn at hit point for charged shots
     public float ExplosionExpandSpeed = 5f;          // speed used when expanding the explosion
     public AnimationCurve ExplosionFadeCurve = AnimationCurve.Linear(0f, 1f, 1f, 0f);
+    public float ExplosionRadiusModifier = 17f;
 
     [Header("Fire Timing")]
     public float HoldThreshold = 0.2f;               // how long until we consider the hold a charge
@@ -58,6 +61,7 @@ public class EnergyPistol : MonoBehaviour
     void Update()
     {
         HeatSlider.value = Heat / 100;
+        ChargeSlider.value = Charge / 100;
 
         // Handle firing input when not overheated or mid-charge
         if (Input.GetMouseButtonDown(0))
@@ -292,7 +296,7 @@ public class EnergyPistol : MonoBehaviour
     #endregion
 
 
-    #region New: Raycast, Beam & Explosion Logic
+    #region Raycast / Beam / Explosion Logic
 
     // Performs a raycast from Camera.main and draws a short-lived beam for a regular (primary) shot.
     // Also logs the hit GameObject (if any).
@@ -302,7 +306,7 @@ public class EnergyPistol : MonoBehaviour
         RaycastHit hit;
         Vector3 hitPoint;
 
-        if (Physics.Raycast(ray, out hit, 1000f))
+        if (Physics.Raycast(ray, out hit, 1000f, ShootableLayers))
         {
             hitPoint = hit.point;
             Debug.Log("[PrimaryFire] Hit: " + hit.collider.gameObject.name);
@@ -318,16 +322,13 @@ public class EnergyPistol : MonoBehaviour
         beamRoutine = StartCoroutine(ShowBeam(FirePoint.position, hitPoint, SingleShotLineWidth, SingleShotLineDuration));
     }
 
-    // Performs a raycast from Camera.main for a charged shot, spawns an expanding explosion at the hit point,
-    // logs the hit object, and draws a beam with charge-specific width/duration.
-    // 'capturedCharge' is the charge amount at release (passed in because Charge is reset by ChargeFire()).
     public void ChargeShotLogic(float capturedCharge)
     {
         Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         RaycastHit hit;
         Vector3 hitPoint;
 
-        if (Physics.Raycast(ray, out hit, 1000f))
+        if (Physics.Raycast(ray, out hit, 1000f, ShootableLayers))
         {
             hitPoint = hit.point;
             Debug.Log("[ChargeShot] Hit: " + hit.collider.gameObject.name);
@@ -382,18 +383,18 @@ public class EnergyPistol : MonoBehaviour
     // Expands and fades explosion using an AnimationCurve for alpha
     private IEnumerator ExpandExplosion(Transform explTransform, float capturedCharge)
     {
-        Renderer rend = explTransform.GetComponent<Renderer>();
-        if (rend == null)
+        Renderer renderer = explTransform.GetComponent<Renderer>();
+        if (renderer == null)
         {
             Debug.LogWarning("[ExpandExplosion] Explosion prefab has no Renderer.");
             yield break;
         }
 
-        Material mat = rend.material;
-        Color startColor = mat.color;
+        Material material = renderer.material;
+        Color startColour = material.color;
 
         Vector3 startScale = explTransform.localScale;
-        Vector3 targetScale = Vector3.one * (1 + (capturedCharge / Mathf.Max(1f, MaxCharge)) * 15f);
+        Vector3 targetScale = Vector3.one * (1 + (capturedCharge / Mathf.Max(1f, MaxCharge)) * ExplosionRadiusModifier);
 
         float t = 0f;
 
@@ -407,17 +408,17 @@ public class EnergyPistol : MonoBehaviour
 
             // Alpha from animation curve (curve defines the alpha over time)
             float curveValue = ExplosionFadeCurve.Evaluate(lerpT);
-            Color c = startColor;
+            Color c = startColour;
             c.a = curveValue;
-            mat.color = c;
+            material.color = c;
 
             yield return null;
         }
 
         // Ensure fully faded
-        Color final = mat.color;
+        Color final = material.color;
         final.a = 0f;
-        mat.color = final;
+        material.color = final;
 
         Destroy(explTransform.gameObject);
     }
