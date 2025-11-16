@@ -28,6 +28,11 @@ public class Swinging : MonoBehaviour
     public float forwardThrustForce;
     public float extendCableSpeed;
 
+    [Header("Prediction")]
+    public RaycastHit predictionHit;
+    public float predictionSphereCastRadius = 3f;
+    public Transform predictionPoint;
+
 
     private void Start()
     {
@@ -44,6 +49,8 @@ public class Swinging : MonoBehaviour
             StopSwing();
         }
 
+        CheckForSwingPoints();
+
         if (joint != null) GrappleMovement();
     }
 
@@ -55,29 +62,28 @@ public class Swinging : MonoBehaviour
     // Logic
     private void StartSwing()
     {
+        // if theres nowhere to swing to, return
+        if (predictionHit.point == Vector3.zero) { return; }
+
         playerMovement.swinging = true;
 
-        RaycastHit hit;
-        if (Physics.Raycast(cam.position, cam.forward, out hit, maxSwingDistance, GrappleLayers))
-        {
-            swingPoint = hit.point;
-            joint = player.gameObject.AddComponent<SpringJoint>();
-            joint.autoConfigureConnectedAnchor = false;
-            joint.connectedAnchor = swingPoint;
+        swingPoint = predictionHit.point;
+        joint = player.gameObject.AddComponent<SpringJoint>();
+        joint.autoConfigureConnectedAnchor = false;
+        joint.connectedAnchor = swingPoint;
 
-            float distanceFromPoint = Vector3.Distance(player.position, swingPoint);
+        float distanceFromPoint = Vector3.Distance(player.position, swingPoint);
 
-            // Distance the grappling hook tries to keep from the grapple point
-            joint.maxDistance = distanceFromPoint * 0.8f;
-            joint.minDistance = distanceFromPoint * 0.25f;
+        // Distance grappling hook tries to keep from grapple point
+        joint.maxDistance = distanceFromPoint * 0.8f;
+        joint.minDistance = distanceFromPoint * 0.25f;
 
-            joint.spring = GrappleSpringValue;
-            joint.damper = GrappleDamperValue;
-            joint.massScale = GrappleMassScale;
+        joint.spring = GrappleSpringValue;
+        joint.damper = GrappleDamperValue;
+        joint.massScale = GrappleMassScale;
 
-            GrappleLine.positionCount = 2;
-            currentGrapplePosition = GrappleTip.position;
-        }
+        GrappleLine.positionCount = 2;
+        currentGrapplePosition = GrappleTip.position;
     }
 
     private void StopSwing()
@@ -130,4 +136,47 @@ public class Swinging : MonoBehaviour
         }
     }
 
+
+    private void CheckForSwingPoints()
+    {
+        if (joint != null) return;
+
+        RaycastHit sphereCastHit;
+        Physics.SphereCast(cam.position, predictionSphereCastRadius, cam.forward, out sphereCastHit, maxSwingDistance, GrappleLayers);
+
+        RaycastHit raycastHit;
+        Physics.Raycast(cam.position, cam.forward, out raycastHit, maxSwingDistance, GrappleLayers);
+
+
+        Vector3 realHitPoint;
+        // Direct Hit
+        if (raycastHit.point != Vector3.zero)
+        {
+            realHitPoint = raycastHit.point;
+        }
+
+        // Predicted Hit
+        else if (sphereCastHit.point != Vector3.zero)
+        {
+            realHitPoint = sphereCastHit.point;
+        }
+
+        // Miss
+        else { realHitPoint = Vector3.zero; }
+
+
+        // realHitPoint found
+        if (realHitPoint != Vector3.zero)
+        {
+            predictionPoint.gameObject.SetActive(true);
+            predictionPoint.position = realHitPoint;
+        }
+        // No realHitPoint found
+        else
+        {
+            predictionPoint.gameObject.SetActive(false);
+        }
+
+        predictionHit = raycastHit.point == Vector3.zero ? sphereCastHit : raycastHit;
+    }
 }

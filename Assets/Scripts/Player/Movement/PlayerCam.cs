@@ -5,6 +5,8 @@ public class PlayerCam : MonoBehaviour
     public float Xsensitivity = 400f;
     public float Ysensitivity = 400f;
 
+    public float myFOV; public float DefaultFOV;
+
     public Transform orientation;
 
     float xRot;
@@ -19,6 +21,8 @@ public class PlayerCam : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        DefaultFOV = GetComponent<Camera>().fieldOfView;
     }
 
     private void Update()
@@ -34,5 +38,23 @@ public class PlayerCam : MonoBehaviour
         // Rotate Camera and Orientation
         transform.rotation = Quaternion.Euler(xRot, yRot, 0);
         orientation.rotation = Quaternion.Euler(0, yRot,0);
+    }
+
+    public void DoFov(float endValue, float lerpTime)
+    {
+        myFOV = GetComponent<Camera>().fieldOfView;
+
+        GetComponent<Camera>().fieldOfView = Mathf.Lerp(myFOV, endValue, lerpTime);
+    }
+
+    public void ResetFOV(float lerpTime)
+    {
+        myFOV = GetComponent<Camera>().fieldOfView;
+
+        GetComponent<Camera>().fieldOfView = Mathf.Lerp(myFOV, DefaultFOV, lerpTime);
+    }
+    public void ForceResetFOV()
+    {
+        GetComponent<Camera>().fieldOfView = DefaultFOV;
     }
 }

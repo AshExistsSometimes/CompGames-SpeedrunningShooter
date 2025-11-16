@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UIElements;
 
 
 public class PlayerMovement : MonoBehaviour
@@ -11,7 +12,12 @@ public class PlayerMovement : MonoBehaviour
     public float walkSpeed;
     public float sprintSpeed;
     public float slideSpeed;
-    public float swingSpeed;
+    [Space]
+    public float swingMaxSpeed;
+    [Space]
+    public float DashMaxSpeed;
+    [Space]
+    public float maxYSpeed = 0f;
 
     private float desiredMoveSpeed;
     private float lastDesiredMoveSpeed;
@@ -34,7 +40,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Keybinds")]
     public KeyCode jumpKey = KeyCode.Space;
-    public KeyCode sprintKey = KeyCode.LeftShift;
+    public KeyCode sprintKey = KeyCode.RightShift;
     public KeyCode crouchKey = KeyCode.LeftControl;
 
     [Header("Ground Check")]
@@ -61,6 +67,9 @@ public class PlayerMovement : MonoBehaviour
     Rigidbody rb;
 
     public MovementState state;
+
+    private MovementState lastState;
+    private bool keepMomentum;
     public enum MovementState
     {
         walking,
@@ -69,10 +78,13 @@ public class PlayerMovement : MonoBehaviour
         swinging,
         crouching,
         sliding,
+        dashing,
         air
     }
 
     public bool sliding;
+
+    public bool dashing;
 
     private void Start()
     {
@@ -94,7 +106,7 @@ public class PlayerMovement : MonoBehaviour
         StateHandler();
 
         // handle drag
-        if (grounded)
+        if (state == MovementState.walking || state == MovementState.sprinting || state == MovementState.crouching)
             rb.linearDamping = groundDrag;
         else
             rb.linearDamping = 0;
@@ -155,6 +167,13 @@ public class PlayerMovement : MonoBehaviour
             desiredMoveSpeed = crouchSpeed;
         }
 
+        // Mode - Dashing
+        else if (dashing)
+        {
+            state = MovementState.dashing;
+            desiredMoveSpeed = DashMaxSpeed;
+        }
+
         // Mode - Sprinting
         else if (grounded && Input.GetKey(sprintKey))
         {
@@ -173,7 +192,7 @@ public class PlayerMovement : MonoBehaviour
         else if (swinging)
         {
             state = MovementState.swinging;
-            moveSpeed = swingSpeed;
+            moveSpeed = swingMaxSpeed;
         }
 
         // Mode - Air
@@ -193,7 +212,28 @@ public class PlayerMovement : MonoBehaviour
             moveSpeed = desiredMoveSpeed;
         }
 
+        bool desiredMoveSpeedHasChanged = desiredMoveSpeed != lastDesiredMoveSpeed;
+        if ( lastState == MovementState.dashing || lastState == MovementState.swinging)
+        {
+            keepMomentum = true;
+        }
+        if (desiredMoveSpeedHasChanged)
+        {
+            if (keepMomentum)
+            {
+                StopAllCoroutines();
+                StartCoroutine(SmoothlyLerpMoveSpeed());
+            }
+            else
+            {
+                StopAllCoroutines();
+                moveSpeed = desiredMoveSpeed;
+            }
+        }
+
+
         lastDesiredMoveSpeed = desiredMoveSpeed;
+        lastState = state;
     }
 
     private IEnumerator SmoothlyLerpMoveSpeed()
@@ -221,11 +261,12 @@ public class PlayerMovement : MonoBehaviour
         }
 
         moveSpeed = desiredMoveSpeed;
+        keepMomentum = false;
     }
 
     private void MovePlayer()
     {
-        if (GrappleActive) { return;}
+        if (state == MovementState.dashing) { return;}
         if (swinging) { return;}
 
         // calculate movement direction
@@ -272,6 +313,12 @@ public class PlayerMovement : MonoBehaviour
                 Vector3 limitedVel = flatVel.normalized * moveSpeed;
                 rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
             }
+        }
+
+        // Limit Y velocity
+        if(maxYSpeed != 0f && rb.linearVelocity.y > maxYSpeed)
+        {
+            rb.linearVelocity = new Vector3(rb.linearVelocity.x, maxYSpeed, rb.linearVelocity.z);
         }
     }
 
