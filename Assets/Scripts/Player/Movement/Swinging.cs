@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Swinging : MonoBehaviour
 {
@@ -22,6 +23,11 @@ public class Swinging : MonoBehaviour
     public float GrappleDamperValue = 7f;
     public float GrappleMassScale = 4.5f;
     private Vector3 currentGrapplePosition;
+
+    [Header("Cooldown")]
+    public int SwingCounter = 3;
+    public int maxSwings = 3;
+    public Slider GrappleCooldownSlider;
 
     [Header("Swinging Movement")]
     public float horizontalThrustForce;
@@ -52,6 +58,12 @@ public class Swinging : MonoBehaviour
         CheckForSwingPoints();
 
         if (joint != null) GrappleMovement();
+
+        if (playerMovement.grounded)
+        {
+            SwingCounter = maxSwings;
+            GrappleCooldownSlider.value = SwingCounter;
+        }
     }
 
     private void LateUpdate()
@@ -64,8 +76,11 @@ public class Swinging : MonoBehaviour
     {
         // if theres nowhere to swing to, return
         if (predictionHit.point == Vector3.zero) { return; }
+        if (SwingCounter <= 0) { return; }
 
         playerMovement.swinging = true;
+        SwingCounter -= 1;
+        GrappleCooldownSlider.value = SwingCounter;
 
         swingPoint = predictionHit.point;
         joint = player.gameObject.AddComponent<SpringJoint>();
@@ -139,6 +154,7 @@ public class Swinging : MonoBehaviour
 
     private void CheckForSwingPoints()
     {
+        if (SwingCounter <= 0) { predictionPoint.gameObject.SetActive(false); return; }
         if (joint != null) return;
 
         RaycastHit sphereCastHit;

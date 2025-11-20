@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using UnityEngine.InputSystem;
 
 public class EnergyPistol : MonoBehaviour
 {
@@ -27,6 +28,7 @@ public class EnergyPistol : MonoBehaviour
     [Header("Damage Settings")]
     public float DefaultDamage = 5f;
     private float DamageToDeal = 5f;
+
 
     [Header("Raycast & Visual Settings")]
     public LineRenderer BeamLine;                    // persistent LineRenderer assigned in inspector
@@ -309,7 +311,14 @@ public class EnergyPistol : MonoBehaviour
         if (Physics.Raycast(ray, out hit, 1000f, ShootableLayers))
         {
             hitPoint = hit.point;
+            int dealtDamage = Mathf.RoundToInt(DamageToDeal);
+
+
             Debug.Log("[PrimaryFire] Hit: " + hit.collider.gameObject.name);
+            if (hit.transform.gameObject.TryGetComponent(out IDamagable damageable))
+            {
+                damageable.TakeDamage(dealtDamage);
+            }
         }
         else
         {
