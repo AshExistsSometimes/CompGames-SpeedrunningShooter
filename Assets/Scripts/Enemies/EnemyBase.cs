@@ -87,6 +87,7 @@ public class EnemyBase : MonoBehaviour, IDamagable
     public void TakeDamage(int damage)
     {
         HP -= damage;
+        Debug.Log("Took " + damage + " damage");
 
         StartCoroutine(DamageFlash());
 

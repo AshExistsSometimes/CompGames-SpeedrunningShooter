@@ -3215,6 +3215,14 @@ PrefabInstance:
       propertyPath: orientation
       value: 
       objectReference: {fileID: 314849381}
+    - target: {fileID: 5706846372619604054, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
+      propertyPath: Xsensitivity
+      value: 900
+      objectReference: {fileID: 0}
+    - target: {fileID: 5706846372619604054, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
+      propertyPath: Ysensitivity
+      value: 900
+      objectReference: {fileID: 0}
     - target: {fileID: 6663133875521700629, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
       propertyPath: m_Name
       value: PlayerCamHolder

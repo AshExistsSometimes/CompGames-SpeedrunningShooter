@@ -46,7 +46,7 @@ public class Swinging : MonoBehaviour
     }
     private void Update()
     {
-        if (Input.GetKeyDown(swingKey))
+        if (Input.GetKeyDown(swingKey) && !playerMovement.isDead)
         {
             StartSwing();
         }
@@ -63,6 +63,11 @@ public class Swinging : MonoBehaviour
         {
             SwingCounter = maxSwings;
             GrappleCooldownSlider.value = SwingCounter;
+        }
+
+        if (playerMovement.isDead)
+        {
+            StopSwing();
         }
     }
 

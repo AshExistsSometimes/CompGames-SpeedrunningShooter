@@ -10,10 +10,6 @@ public class Projectile : MonoBehaviour
     private LayerMask ignoreLayers;
 
     private float timer;
-
-    /// <summary>
-    /// Simple setup for the projectile
-    /// </summary>
     public void Setup(int damage, float speed, float lifetime, Vector3 direction, GameObject shooter, LayerMask ignoreLayers)
     {
         this.damage = damage;

@@ -28,6 +28,7 @@ public class EnergyPistol : MonoBehaviour
     [Header("Damage Settings")]
     public float DefaultDamage = 5f;
     private float DamageToDeal = 5f;
+    private int explosionDamage;
 
 
     [Header("Raycast & Visual Settings")]
@@ -60,13 +61,15 @@ public class EnergyPistol : MonoBehaviour
     private float mouseDownTime = 0f;
     private Coroutine beamRoutine;
 
+    public PlayerMovement player;
+
     void Update()
     {
         HeatSlider.value = Heat / 100;
         ChargeSlider.value = Charge / 100;
 
         // Handle firing input when not overheated or mid-charge
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0) && !player.isDead)
         {
             if (!isOverheated)
             {
@@ -76,7 +79,7 @@ public class EnergyPistol : MonoBehaviour
         }
 
         // While charging, accumulate charge and heat
-        if (Input.GetMouseButton(0) && isCharging)
+        if (Input.GetMouseButton(0) && isCharging && !player.isDead)
         {
             Charge = Mathf.Min(Charge + ChargeSpeed * Time.deltaTime, MaxCharge);
             Heat = Mathf.Min(Heat + ChargeSpeed * Time.deltaTime, MaxHeat);
@@ -91,7 +94,7 @@ public class EnergyPistol : MonoBehaviour
         }
 
         // On release, decide between primary or charge based on hold time, then fire
-        if (Input.GetMouseButtonUp(0) && isCharging)
+        if (Input.GetMouseButtonUp(0) && isCharging && !player.isDead)
         {
             float heldFor = Time.time - mouseDownTime;
 
@@ -154,7 +157,6 @@ public class EnergyPistol : MonoBehaviour
     // Handles charge fire logic (run on mouse up)
     public void ChargeFire()
     {
-        // Always allow shot if charge started, even if overheated during it
         DamageToDeal = DefaultDamage + (Charge / 2f);
         Heat = Mathf.Min(Heat + OverheatSpeed, MaxHeat);// Applies heat after charge fire released
         lastFiredTime = Time.time;
@@ -352,10 +354,21 @@ public class EnergyPistol : MonoBehaviour
         if (beamRoutine != null) StopCoroutine(beamRoutine);
         beamRoutine = StartCoroutine(ShowBeam(FirePoint.position, hitPoint, ChargeShotLineWidth, ChargeShotLineDuration));
 
+        // Calculate Explosion Damage
+        float explosionDmg = DamageToDeal;
+        explosionDamage = Mathf.FloorToInt(explosionDmg);
+        Debug.Log("[ChargeShot] Unrounded Damage: " + DamageToDeal + ", Damage Dealt: " + explosionDmg + "  -  Charge at fire time: " + Charge);
+
         // Spawn explosion at hit point if prefab assigned
         if (ExplosionPrefab != null)
         {
             GameObject e = Instantiate(ExplosionPrefab, hitPoint, Quaternion.identity);
+            Explosion explosion = e.GetComponent<Explosion>();
+            if (explosion == null) { return; }
+            Debug.Log(hitPoint);
+
+            explosion.Setup(explosionDamage);
+
             StartCoroutine(ExpandExplosion(e.transform, capturedCharge));
         }
         else

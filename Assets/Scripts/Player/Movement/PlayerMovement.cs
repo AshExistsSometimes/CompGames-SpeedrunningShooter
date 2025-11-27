@@ -56,6 +56,8 @@ public class PlayerMovement : MonoBehaviour
     public bool GrappleActive;
     public bool swinging;
 
+    [Header("Death")]
+    public bool isDead = false;
 
     public Transform orientation;
 
@@ -93,6 +95,8 @@ public class PlayerMovement : MonoBehaviour
 
         readyToJump = true;
 
+        isDead = false;
+
         startYScale = transform.localScale.y;
     }
 
@@ -101,10 +105,13 @@ public class PlayerMovement : MonoBehaviour
         // ground check
         grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
 
-        MyInput();
-        SpeedControl();
-        StateHandler();
-
+        if (!isDead)
+        {
+            MyInput();
+            SpeedControl();
+            StateHandler();
+        }
+        
         // handle drag
         if (state == MovementState.walking || state == MovementState.sprinting || state == MovementState.crouching)
             rb.linearDamping = groundDrag;

@@ -177,7 +177,7 @@ public class RangedEnemy : EnemyBase
         Vector3 initialDir = rotation * Vector3.forward;
 
         // Layers to ignore: enemies + self
-        LayerMask ignore = LayerMask.GetMask("Enemy"); // put all enemies in "Enemy" layer
+        LayerMask ignore = LayerMask.GetMask("Projectile"); // put all enemies in "Enemy" layer
         ignore |= 1 << gameObject.layer;               // also ignore self
 
         p.Setup(

@@ -17,6 +17,8 @@ public class PlayerCam : MonoBehaviour
 
     public bool CursorLocked = true;
 
+    public PlayerMovement player;
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -36,8 +38,12 @@ public class PlayerCam : MonoBehaviour
         xRot = Mathf.Clamp(xRot, YLookBounds.x, YLookBounds.y);
 
         // Rotate Camera and Orientation
-        transform.rotation = Quaternion.Euler(xRot, yRot, 0);
-        orientation.rotation = Quaternion.Euler(0, yRot,0);
+        if (!player.isDead)
+        {
+            transform.rotation = Quaternion.Euler(xRot, yRot, 0);
+            orientation.rotation = Quaternion.Euler(0, yRot, 0);
+        }
+        
     }
 
     public void DoFov(float endValue, float lerpTime)

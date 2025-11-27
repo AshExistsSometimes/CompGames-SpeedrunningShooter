@@ -215,6 +215,7 @@ MonoBehaviour:
   maxSlopeAngle: 40
   GrappleActive: 0
   swinging: 0
+  isDead: 0
   orientation: {fileID: 2700626782941485031}
   state: 0
   sliding: 0
@@ -256,7 +257,7 @@ MonoBehaviour:
   player: {fileID: 6922055314969902644}
   GrappleLayers:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 192
   playerMovement: {fileID: 3458836501503130810}
   orientation: {fileID: 2700626782941485031}
   maxSwingDistance: 30
@@ -422,6 +423,8 @@ MonoBehaviour:
   MaxHP: 100
   ImmunityTime: 0.25
   HPSlider: {fileID: 0}
+  DeathScreen: {fileID: 0}
+  player: {fileID: 3458836501503130810}
 --- !u!1 &6484509245460711694
 GameObject:
   m_ObjectHideFlags: 0
