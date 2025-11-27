@@ -24,6 +24,9 @@ public class Swinging : MonoBehaviour
     public float GrappleMassScale = 4.5f;
     private Vector3 currentGrapplePosition;
 
+    private Transform grappledEnemy;
+    private Transform swingPointTransform; // Only used when grappling enemies
+
     [Header("Cooldown")]
     public int SwingCounter = 3;
     public int maxSwings = 3;
@@ -87,14 +90,49 @@ public class Swinging : MonoBehaviour
         SwingCounter -= 1;
         GrappleCooldownSlider.value = SwingCounter;
 
-        swingPoint = predictionHit.point;
+        // Check if hit object is on Enemy layer
+        bool hitEnemy = predictionHit.transform != null &&
+                        predictionHit.transform.gameObject.layer == LayerMask.NameToLayer("Enemy");
+
+        if (hitEnemy)
+        {
+            grappledEnemy = predictionHit.transform;
+
+            // Create a moving grapple point as a child of the enemy
+            GameObject movingPoint = new GameObject("GrappleAttachPoint");
+            movingPoint.transform.SetParent(grappledEnemy);
+            movingPoint.transform.position = predictionHit.point;
+
+            swingPointTransform = movingPoint.transform;
+            swingPoint = swingPointTransform.position;
+
+            predictionPoint.position = swingPoint;
+        }
+        else
+        {
+            grappledEnemy = null;
+            swingPointTransform = null;
+            swingPoint = predictionHit.point;
+            predictionPoint.position = swingPoint;
+        }
+
         joint = player.gameObject.AddComponent<SpringJoint>();
         joint.autoConfigureConnectedAnchor = false;
-        joint.connectedAnchor = swingPoint;
+
+        if (hitEnemy)
+        {
+            Rigidbody enemyRb = grappledEnemy.GetComponent<Rigidbody>();
+
+            joint.connectedBody = enemyRb;
+            joint.connectedAnchor = enemyRb.transform.InverseTransformPoint(swingPointTransform.position);
+        }
+        else
+        {
+            joint.connectedAnchor = swingPoint; // original behavior
+        }
 
         float distanceFromPoint = Vector3.Distance(player.position, swingPoint);
 
-        // Distance grappling hook tries to keep from grapple point
         joint.maxDistance = distanceFromPoint * 0.8f;
         joint.minDistance = distanceFromPoint * 0.25f;
 
@@ -110,17 +148,32 @@ public class Swinging : MonoBehaviour
     {
         playerMovement.swinging = false;
         GrappleLine.positionCount = 0;
+
+        if (swingPointTransform != null)
+            Destroy(swingPointTransform.gameObject);
+
+        grappledEnemy = null;
+        swingPointTransform = null;
+
         Destroy(joint);
     }
 
     private void DrawRope()
     {
-        if (!joint) { return; }
+        if (!joint) return;
+
+        // If grappling enemy, update dynamic point
+        if (swingPointTransform != null)
+            swingPoint = swingPointTransform.position;
 
         currentGrapplePosition = Vector3.Lerp(currentGrapplePosition, swingPoint, Time.deltaTime * 0.1f);
 
         GrappleLine.SetPosition(0, GrappleTip.position);
         GrappleLine.SetPosition(1, swingPoint);
+
+        // Keep prediction point stuck to rope end
+        predictionPoint.position = swingPoint;
+
     }
 
 

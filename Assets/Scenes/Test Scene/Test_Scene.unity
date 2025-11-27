@@ -717,6 +717,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &675881041 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1024565894546765057, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
+  m_PrefabInstance: {fileID: 434028388873931540}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &679693576 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 639742879561034608, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
@@ -2352,6 +2357,17 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1818833134}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &1832282643 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3458836501503130810, guid: a893b99d322f1ae4bae0403d6c1e0b56, type: 3}
+  m_PrefabInstance: {fileID: 5872481943025938500}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f601bf579009b684d92881c3773bbbdd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1880619792
 GameObject:
   m_ObjectHideFlags: 0
@@ -3160,6 +3176,10 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2813317458875561208, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1832282643}
+    - target: {fileID: 2813317458875561208, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
       propertyPath: HeatSlider
       value: 
       objectReference: {fileID: 646848302}
@@ -3212,16 +3232,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 753347833}
     - target: {fileID: 5706846372619604054, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1832282643}
+    - target: {fileID: 5706846372619604054, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
       propertyPath: orientation
       value: 
       objectReference: {fileID: 314849381}
     - target: {fileID: 5706846372619604054, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
       propertyPath: Xsensitivity
-      value: 900
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 5706846372619604054, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
       propertyPath: Ysensitivity
-      value: 900
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 6663133875521700629, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
       propertyPath: m_Name
@@ -3458,6 +3482,10 @@ PrefabInstance:
       propertyPath: HPSlider
       value: 
       objectReference: {fileID: 2123674394}
+    - target: {fileID: 1407816774650287033, guid: a893b99d322f1ae4bae0403d6c1e0b56, type: 3}
+      propertyPath: DeathScreen
+      value: 
+      objectReference: {fileID: 675881041}
     - target: {fileID: 5364957134419002396, guid: a893b99d322f1ae4bae0403d6c1e0b56, type: 3}
       propertyPath: m_Name
       value: Player

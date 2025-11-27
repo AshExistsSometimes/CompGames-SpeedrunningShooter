@@ -132,6 +132,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1138022278010836578, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1138022278010836578, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1643608386084090173, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
       propertyPath: m_Name
       value: HUD
@@ -232,11 +240,46 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8680613695313520212, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8680613695313520212, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
+--- !u!1 &295518253 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1024565894546765057, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
+  m_PrefabInstance: {fileID: 295518252}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &295518254 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7296520699789998586, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
+  m_PrefabInstance: {fileID: 295518252}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &295518255 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 639742879561034608, guid: ef98c2937a9a07b4c99246512549da64, type: 3}
+  m_PrefabInstance: {fileID: 295518252}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &450866478 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2711591093668128856, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
@@ -398,6 +441,18 @@ PrefabInstance:
       propertyPath: predictionPoint
       value: 
       objectReference: {fileID: 1676664582}
+    - target: {fileID: 856270164423193223, guid: a893b99d322f1ae4bae0403d6c1e0b56, type: 3}
+      propertyPath: GrappleCooldownSlider
+      value: 
+      objectReference: {fileID: 295518255}
+    - target: {fileID: 1407816774650287033, guid: a893b99d322f1ae4bae0403d6c1e0b56, type: 3}
+      propertyPath: HPSlider
+      value: 
+      objectReference: {fileID: 295518254}
+    - target: {fileID: 1407816774650287033, guid: a893b99d322f1ae4bae0403d6c1e0b56, type: 3}
+      propertyPath: DeathScreen
+      value: 
+      objectReference: {fileID: 295518253}
     - target: {fileID: 5364957134419002396, guid: a893b99d322f1ae4bae0403d6c1e0b56, type: 3}
       propertyPath: m_Name
       value: Player
@@ -447,6 +502,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a893b99d322f1ae4bae0403d6c1e0b56, type: 3}
+--- !u!114 &1083673408 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3458836501503130810, guid: a893b99d322f1ae4bae0403d6c1e0b56, type: 3}
+  m_PrefabInstance: {fileID: 1083673407}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f601bf579009b684d92881c3773bbbdd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1125780776 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4734172107500061324, guid: a893b99d322f1ae4bae0403d6c1e0b56, type: 3}
@@ -665,6 +731,10 @@ PrefabInstance:
       propertyPath: camPosition
       value: 
       objectReference: {fileID: 1125780776}
+    - target: {fileID: 5706846372619604054, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1083673408}
     - target: {fileID: 5706846372619604054, guid: 0d57a1595cf4873408c0800ef23223df, type: 3}
       propertyPath: orientation
       value: 

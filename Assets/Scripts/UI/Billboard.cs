@@ -5,7 +5,7 @@ public class Billboard : MonoBehaviour
     private Camera mainCamera;
 
     [Header("Size Settings")]
-    public float Size = .3f;
+    public float Size = 1f;
     public bool scalesWithDistance = false;
 
     private void Start()
@@ -13,8 +13,6 @@ public class Billboard : MonoBehaviour
         mainCamera = Camera.main;
         if (mainCamera == null)
             Debug.LogWarning("Billboard: No main camera found!");
-
-        transform.localScale = Vector3.one * Size;
     }
 
     private void LateUpdate()
