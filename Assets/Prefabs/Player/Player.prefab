@@ -49,6 +49,7 @@ GameObject:
   - component: {fileID: 856270164423193223}
   - component: {fileID: 1864940401196558026}
   - component: {fileID: 7442285285590853869}
+  - component: {fileID: 1407816774650287033}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -210,6 +211,7 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 64
+  grounded: 0
   maxSlopeAngle: 40
   GrappleActive: 0
   swinging: 0
@@ -254,13 +256,16 @@ MonoBehaviour:
   player: {fileID: 6922055314969902644}
   GrappleLayers:
     serializedVersion: 2
-    m_Bits: 192
+    m_Bits: 64
   playerMovement: {fileID: 3458836501503130810}
   orientation: {fileID: 2700626782941485031}
   maxSwingDistance: 30
   GrappleSpringValue: 4.5
   GrappleDamperValue: 7
   GrappleMassScale: 4.5
+  SwingCounter: 3
+  maxSwings: 3
+  GrappleCooldownSlider: {fileID: 0}
   horizontalThrustForce: 2000
   forwardThrustForce: 3000
   extendCableSpeed: 20
@@ -401,6 +406,22 @@ MonoBehaviour:
   DashCooldown: 1
   cooldownTimer: 0
   dashKey: 304
+--- !u!114 &1407816774650287033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5364957134419002396}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 607e3afe12e972143a3cdadc347594e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  HP: 100
+  MaxHP: 100
+  ImmunityTime: 0.25
+  HPSlider: {fileID: 0}
 --- !u!1 &6484509245460711694
 GameObject:
   m_ObjectHideFlags: 0
