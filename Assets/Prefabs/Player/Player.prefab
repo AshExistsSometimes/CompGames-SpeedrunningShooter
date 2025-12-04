@@ -50,6 +50,7 @@ GameObject:
   - component: {fileID: 1864940401196558026}
   - component: {fileID: 7442285285590853869}
   - component: {fileID: 1407816774650287033}
+  - component: {fileID: 3463921010012570689}
   m_Layer: 3
   m_Name: Player
   m_TagString: Untagged
@@ -422,9 +423,33 @@ MonoBehaviour:
   HP: 100
   MaxHP: 100
   ImmunityTime: 0.25
+  LevelRestartCooldownTimer: 0.25
   HPSlider: {fileID: 0}
   DeathScreen: {fileID: 0}
   player: {fileID: 3458836501503130810}
+--- !u!136 &3463921010012570689
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5364957134419002396}
+  m_Material: {fileID: 13400000, guid: 4bec554ff5460c24586ea5f999f0fa2c, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.55
+  m_Height: 1.5
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6484509245460711694
 GameObject:
   m_ObjectHideFlags: 0
