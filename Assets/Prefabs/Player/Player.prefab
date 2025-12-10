@@ -193,16 +193,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   walkSpeed: 15
   sprintSpeed: 30
-  slideSpeed: 45
+  slideSpeed: 1
   swingMaxSpeed: 100
   DashMaxSpeed: 20
   maxYSpeed: 0
   speedIncreaseMultiplier: 1.5
   slopeIncreaseMultiplier: 2.5
-  groundDrag: 5
-  jumpForce: 10
+  groundDrag: 7
+  jumpForce: 12
   jumpCooldown: 0.2
-  airMultiplier: 0.4
+  airMultiplier: 0.2
   crouchSpeed: 5
   crouchYScale: 0.5
   jumpKey: 32
@@ -212,7 +212,7 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 64
-  grounded: 0
+  grounded: 1
   maxSlopeAngle: 40
   GrappleActive: 0
   swinging: 0
@@ -235,7 +235,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   orientation: {fileID: 2700626782941485031}
   playerObj: {fileID: 6922055314969902644}
-  maxSlideTime: 1
+  maxSlideTime: 0.6
   slideForce: 200
   slideYScale: 0.2
   slideKey: 306

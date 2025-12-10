@@ -22,7 +22,7 @@ public class EnemyBase : MonoBehaviour, IDamagable
     [HideInInspector] public float attackCooldownTimer;
     [Tooltip("Distance that the enemy can see the player from")]
     public float TargetingRange = 15f;
-    private bool playerInTargetRange;
+    public bool playerInTargetRange;
     [Tooltip("Distance that the enemy can attack the player from")]
     public float AttackRange = 15f;
     [HideInInspector]public bool playerInAttackRange;
@@ -40,8 +40,8 @@ public class EnemyBase : MonoBehaviour, IDamagable
     public Transform player;
     public LayerMask groundLayer, playerLayer;
 
-    private Renderer renderer;
-    private Color originalColour;
+    public Renderer renderer;
+    public Color originalColour;
 
     public void Start()
     {
